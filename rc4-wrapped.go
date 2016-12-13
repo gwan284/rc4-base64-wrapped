@@ -11,6 +11,8 @@ type webSafeCoder struct {
 	b64 *base64.Encoding
 }
 
+const SprinkleChar = "/"
+
 // Creates new coder using RC4-key provided and web-safe base64 encoder.
 func NewCoder(key string) (*webSafeCoder, error) {
 	var coder webSafeCoder
@@ -22,7 +24,7 @@ func NewCoder(key string) (*webSafeCoder, error) {
 
 	coder.b64 = base64.URLEncoding.WithPadding(base64.NoPadding)
 
-	return coder, nil
+	return &coder, nil
 }
 
 //Encodes string using RC4 crypto algorithm
@@ -35,13 +37,17 @@ func (c webSafeCoder) EncodeWrap(s string) string {
 	cipher.XORKeyStream(encrypted, data)
 	cipher.Reset()
 
-	return c.b64.EncodeToString(encrypted)
+	encoded := c.b64.EncodeToString(encrypted)
+
+	return sprinkle(encoded, SprinkleChar)
 }
 
 //Unwraps string using web-safe base64 encoding
 // and decrypts result using RC4 cipher
 func (c webSafeCoder) UnwrapDecode(s string) (string, error) {
-	decoded, err := c.b64.DecodeString(s)
+	unsprikled := unsprinkle(s, SprinkleChar)
+
+	decoded, err := c.b64.DecodeString(unsprikled)
 	if err != nil {
 		return s, err
 	}

@@ -18,36 +18,39 @@ func contains(idx []int, v int) bool {
 	return false
 }
 
-func sprinkleIndices(s string) []int {
+func sprinklingIndices(l int) []int {
 	rand.Seed(time.Now().UnixNano())
 
-	n :=  rand.Intn(len(s) / 2) + 1;
+	n :=  rand.Intn(l / 3) + 1;
 	idx := make([]int, 1, n)
 	for i := 0; i < n; i++ {
-		v := rand.Intn(n - 2) + 1
+		v := rand.Intn(l - 2) + 1
 		if !contains(idx, v) {
 			idx = append(idx, v)
 		}
 	}
+
+	sort.Ints(idx)
 	return idx
 }
 
 func sprinkle(s, ch string) string {
-	pos := sprinkleIndices(s)
-	sort.Ints(pos)
+	idx := sprinklingIndices(len(s))
 
 	var buffer bytes.Buffer
 
-	npos := 0
-	for i := range pos {
-		buffer.WriteString(s[npos - i : pos[i] + i])
+	buffer.WriteString(s[ : idx[0]])
+	for i := 1; i < len(idx); i++ {
+		l := idx[i-1]
+		r := idx[i]
+		buffer.WriteString(s[l : r])
 		buffer.WriteString(ch)
-		npos = buffer.Len()
 	}
-	sprinkled := buffer.String()
-	left := len(s) - (len(sprinkled) - len(pos))
 
-	return sprinkled + s[len(s) - left:]
+	sprinkled := buffer.String()
+	left := s[idx[len(idx) -1] : ]
+
+	return sprinkled + left
 }
 
 func unsprinkle(s, ch string) string {

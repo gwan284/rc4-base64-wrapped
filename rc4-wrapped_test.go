@@ -32,7 +32,7 @@ func TestEncodingDecoding(t *testing.T) {
 	}
 }
 
-func EncodeDecodeNTimes(s string, n int) string {
+func encodeDecodeNTimes(s string, n int) string {
 	decoded := ""
 
 	c, _ := NewCoder(TEST_KEY)
@@ -43,7 +43,19 @@ func EncodeDecodeNTimes(s string, n int) string {
 	return decoded
 }
 
-func EncodeNTimes(s string, n int) string {
+func BenchmarkEncodingDecoding(b *testing.B) {
+	links := []string{
+		"link-D5a1Z-small@gmail.com",
+		"link-Adn54-medium.length@yahoo.com",
+		"link-5MN6j-very_long_name.123@mailboxhostname.com",
+	}
+
+	for n := 0; n < b.N; n++ {
+		encodeDecodeNTimes(links[n%3], 1000)
+	}
+}
+
+func encodeNTimes(s string, n int) string {
 	encoded := ""
 
 	c, _ := NewCoder(TEST_KEY)
@@ -53,26 +65,10 @@ func EncodeNTimes(s string, n int) string {
 	return encoded
 }
 
-func BenchmarkEncodingDecoding1Million(b *testing.B) {
-	links := []string{
-		"link-D5a1Z-small@gmail.com",
-		"link-Adn54-medium.length@yahoo.com",
-		"link-5MN6j-very_long_name.123@mailboxhostname.com",
-	}
-
-	for n := 0; n < b.N; n++ {
-		EncodeDecodeNTimes(links[n%3], 1000000)
-	}
-}
-
 func BenchmarkEncoding1Million(b *testing.B) {
-	links := []string{
-		"link-D5a1Z-small@gmail.com",
-		"link-Adn54-medium.length@yahoo.com",
-		"link-5MN6j-very_long_name.123@mailboxhostname.com",
-	}
+	link :=	"link-Adn54-medium.length@yahoo.com"
 
 	for n := 0; n < b.N; n++ {
-		EncodeNTimes(links[n%3], 1000000)
+		encodeNTimes(link, 1000000)
 	}
 }
